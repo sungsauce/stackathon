@@ -9,7 +9,8 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  FlatList
 } from 'react-native'
 import { Constants, ImagePicker, Permissions } from 'expo'
 import uuid from 'uuid'
@@ -20,8 +21,10 @@ console.disableYellowBox = true
 
 export default class ScanScreen extends React.Component {
   state = {
-    image: null,
-    uploading: false
+    imageUri: null,
+    imageBase64: null,
+    status: null,
+    results: null
   }
 
   async componentDidMount() {
@@ -30,34 +33,61 @@ export default class ScanScreen extends React.Component {
   }
 
   render() {
-    let { image } = this.state
+    let { imageUri, status, results } = this.state
+
+    // console.log("RESULTS: ", results)
+
+    let imageView = null
+    if (imageUri) {
+      imageView = (
+        <Image style={{ width: 300, height: 300 }} source={{ uri: imageUri }} />
+      )
+    }
+
+    let labelView = null
+    if (status) {
+      labelView = (
+        <View>
+          <Text style={styles.status}>{status}</Text>
+          {/* <Text style={styles.labelResults}>{results}</Text> */}
+          {results && (
+            <FlatList
+              data={results}
+              extraData={this.state}
+              keyExtractor={this._keyExtractor}
+              renderItem={this._renderItem}
+            />
+          )}
+        </View>
+      )
+    }
 
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        {image ? null : (
-          <Text
-            style={{
-              fontSize: 20,
-              marginBottom: 20,
-              textAlign: 'center',
-              marginHorizontal: 15
-            }}
-          >
-            Example: Upload ImagePicker result
-          </Text>
-        )}
-
-        <Button onPress={this._pickImage} title="Pick an image from camera roll" />
-
+        {imageView}
+        {labelView}
+        <Button
+          onPress={this._pickImage}
+          title="Pick an image from camera roll"
+        />
         <Button onPress={this._takePhoto} title="Take a photo" />
 
-        {this._maybeRenderImage()}
-        {this._maybeRenderUploadingOverlay()}
+        {/* {this._maybeRenderImage()}
+        {this._maybeRenderUploadingOverlay()} */}
 
-        <StatusBar barStyle="default" />
+        {/* <StatusBar barStyle="default" /> */}
       </View>
     )
   }
+
+  _renderItem = ({ item }) => {
+    // console.log("Item: ", item)
+    return (
+      <Text style={styles.labelResults}>{item.description}</Text>
+    )
+  }
+
+  _keyExtractor = (item) => item.mid
 
   _maybeRenderUploadingOverlay = () => {
     if (this.state.uploading) {
@@ -132,66 +162,93 @@ export default class ScanScreen extends React.Component {
   }
 
   _takePhoto = async () => {
-    let pickerResult = await ImagePicker.launchCameraAsync({
+    const { cancelled, uri, base64 } = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
-      aspect: [4, 3]
+      base64: true
     })
-
-    this._handleImagePicked(pickerResult)
+    if (!cancelled) {
+      this.setState({
+        imageUri: uri,
+        imageBase64: base64,
+        status: 'Loading...'
+      })
+      this._handleImagePicked(base64)
+    }
   }
 
   _pickImage = async () => {
-    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+    const {
+      cancelled,
+      uri,
+      base64
+    } = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
-      aspect: [4, 3]
+      base64: true
     })
-
-    this._handleImagePicked(pickerResult)
+    if (!cancelled) {
+      this.setState({
+        imageUri: uri,
+        imageBase64: base64,
+        status: 'Loading...'
+      })
+      this._handleImagePicked(base64)
+    }
   }
 
-  _handleImagePicked = async pickerResult => {
+  _handleImagePicked = async base64 => {
     try {
-      this.setState({ uploading: true })
-
-      if (!pickerResult.cancelled) {
-        const uploadUrl = await uploadImageAsync(pickerResult.uri)
-        this.setState({ image: uploadUrl })
+      const body = {
+        requests: [
+          {
+            image: { content: base64 },
+            features: [
+              { type: 'LABEL_DETECTION', maxResults: 10 },
+              { type: 'WEB_DETECTION', maxResults: 5 }
+            ]
+          }
+        ]
       }
+
+      const key = Environment.GOOGLE_CLOUD_VISION_API_KEY
+      const response = await fetch(
+        `https://vision.googleapis.com/v1/images:annotate?key=${key}`,
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        }
+      )
+      const parsed = await response.json()
+
+      console.log('parsed response: ', parsed)
+
+      this.setState({
+        status: 'Results:',
+        results: parsed.responses[0].labelAnnotations.reverse()
+      })
     } catch (e) {
       console.log(e)
-      alert('Upload failed! Sorry :(')
-    } finally {
-      this.setState({ uploading: false })
+      alert('Oh noes! Something went wrong. Try again.')
     }
   }
 }
 
-// REFACTOR THIS SO THAT IT SENDS THE IMAGE TO GOOGLE CLOUD VISION
-async function uploadImageAsync(uri) {
-  // Why are we using XMLHttpRequest? See:
-  // https://github.com/expo/expo/issues/2402#issuecomment-443726662
-  const blob = await new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest()
-    xhr.onload = function() {
-      resolve(xhr.response)
-    }
-    xhr.onerror = function(e) {
-      console.log(e)
-      reject(new TypeError('Network request failed'))
-    }
-    xhr.responseType = 'blob'
-    xhr.open('GET', uri, true)
-    xhr.send(null)
-  })
-
-  const ref = firebase
-    .storage()
-    .ref()
-    .child(uuid.v4())
-  const snapshot = await ref.put(blob)
-
-  // We're done with the blob, close and release it
-  blob.close()
-
-  return await snapshot.ref.getDownloadURL()
-}
+const styles = StyleSheet.create({
+  labelResults: {
+    fontSize: 17,
+    color: 'rgba(96,100,109, 1)',
+    lineHeight: 24,
+    textAlign: 'center',
+    margin: 5
+  },
+  status: {
+    fontSize: 17,
+    color: 'rgba(0,0,0, 1)',
+    lineHeight: 24,
+    textAlign: 'center',
+    margin: 5
+  }
+})
