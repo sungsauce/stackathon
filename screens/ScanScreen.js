@@ -2,27 +2,22 @@ import React from 'react'
 import {
   ActivityIndicator,
   Button,
-  Clipboard,
-  Image,
-  Share,
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
-  FlatList
 } from 'react-native'
-import { Constants, ImagePicker, Permissions } from 'expo'
-import uuid from 'uuid'
+import { connect } from 'react-redux'
+import { ImagePicker, Permissions } from 'expo'
 import Environment from '../config/environment'
-import firebase from '../config/firebase'
+import ResultsScreen from './ResultsScreen'
+import { updateCurrentImage } from '../store/reducer'
 
 console.disableYellowBox = true
 
-export default class ScanScreen extends React.Component {
+export class ScanScreen extends React.Component {
   state = {
-    imageUri: null,
-    imageBase64: null,
+    // imageUri: null,
     status: null,
     results: null
   }
@@ -33,56 +28,39 @@ export default class ScanScreen extends React.Component {
   }
 
   render() {
-    let { imageUri, status, results } = this.state
-
-    let imageView = null
-    if (imageUri) {
-      imageView = (
-        <Image style={{ width: 300, height: 300, flex: 1}} source={{ uri: imageUri }} />
-      )
-    }
-
-    let labelView = null
-    if (status) {
-      labelView = (
-        <View style={{flex: 1}}>
-          <Text style={styles.status}>{status}</Text>
-          {results && (
-            <FlatList
-              data={results}
-              extraData={this.state}
-              keyExtractor={this._keyExtractor}
-              renderItem={this._renderItem}
-              contentContainerStyle={{width: 300}}
-            />
-          )}
-        </View>
-      )
-    }
+    let { currentImage } = this.props
 
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Button
-          onPress={this._pickImage}
-          title="Pick an image from camera roll"
-        />
-        <Button onPress={this._takePhoto} title="Take a photo" />
-        {imageView}
-        {labelView}
+      <View style={{ flex: 1 }}>
+        {currentImage ? (
+          <ResultsScreen
+            {...this.state}
+            imageUri={currentImage}
+            keyExtractor={this._keyExtractor}
+            renderItem={this._renderItem}
+          />
+        ) : (
+          <View
+            style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Button onPress={this._takePhoto} title="Take a photo" />
+            <Button onPress={this._pickImage} title="Pick an image from camera roll" />
+          </View>
+        )}
         {this._maybeRenderLoadingOverlay()}
         <StatusBar barStyle="default" />
       </View>
     )
   }
 
-  _renderItem = ({ item }) => {
-    return <Text style={styles.labelResults}>{item.description}</Text>
-  }
+  _renderItem = ({ item }) => (
+    <Text style={styles.labelResults}>{item.description}</Text>
+  )
 
   _keyExtractor = item => item.mid
 
   _maybeRenderLoadingOverlay = () => {
-    if (this.state.status === 'Loading...') {
+    if (this.state.status === 'Analyzing...') {
       return (
         <View
           style={[
@@ -95,6 +73,7 @@ export default class ScanScreen extends React.Component {
           ]}
         >
           <ActivityIndicator color="#fff" animating size="large" />
+          <Text style={styles.status}>{this.state.status}</Text>
         </View>
       )
     }
@@ -105,11 +84,12 @@ export default class ScanScreen extends React.Component {
       allowsEditing: true,
       base64: true
     })
+
     if (!cancelled) {
+      this.props.updateCurrentImage(uri)
       this.setState({
-        imageUri: uri,
-        imageBase64: base64,
-        status: 'Loading...'
+        // imageUri: uri,
+        status: 'Analyzing...'
       })
       this._handleImagePicked(base64)
     }
@@ -125,10 +105,10 @@ export default class ScanScreen extends React.Component {
       base64: true
     })
     if (!cancelled) {
+      this.props.updateCurrentImage(uri)
       this.setState({
-        imageUri: uri,
-        imageBase64: base64,
-        status: 'Loading...'
+        // imageUri: uri,
+        status: 'Analyzing...'
       })
       this._handleImagePicked(base64)
     }
@@ -181,7 +161,7 @@ export default class ScanScreen extends React.Component {
         label => !unwantedLabels.includes(label.description)
       )
       this.setState({
-        status: 'Results:',
+        status: 'Retrieved',
         results: filtered
       })
     } catch (e) {
@@ -201,9 +181,18 @@ const styles = StyleSheet.create({
   },
   status: {
     fontSize: 17,
-    color: 'rgba(0,0,0, 1)',
+    color: 'rgba(255,255,255, 1)',
     lineHeight: 24,
-    textAlign: 'center',
-    margin: 5
+    textAlign: 'center'
   }
 })
+
+const mapStateToProps = state => ({
+  currentImage: state.currentImage
+})
+
+const mapDispatchToProps = dispatch => ({
+  updateCurrentImage: (uri) => dispatch(updateCurrentImage(uri))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(ScanScreen)

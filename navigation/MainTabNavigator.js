@@ -1,11 +1,9 @@
 import React from 'react';
 import { Platform } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
-
 import TabBarIcon from '../components/TabBarIcon';
-import HomeScreen from '../screens/HomeScreen';
-import SettingsScreen from '../screens/SettingsScreen';
 import ScanScreen from '../screens/ScanScreen'
+import BookmarksScreen from '../screens/BookmarksScreen'
 
 const HomeStack = createStackNavigator({
   Home: ScanScreen,
@@ -16,45 +14,26 @@ HomeStack.navigationOptions = {
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
-      name={
-        Platform.OS === 'ios'
-          ? `ios-information-circle${focused ? '' : '-outline'}`
-          : 'md-information-circle'
-      }
+      name={Platform.OS === 'ios' ? `ios-home` : 'md-home'}
     />
   ),
 };
 
-const SettingsStack = createStackNavigator({
-  Settings: SettingsScreen,
+const BookmarksStack = createStackNavigator({
+  Bookmarks: BookmarksScreen,
 });
 
-SettingsStack.navigationOptions = {
-  tabBarLabel: 'Settings',
+BookmarksStack.navigationOptions = {
+  tabBarLabel: 'Bookmarks',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}
-    />
-  ),
-};
-
-const ScanStack = createStackNavigator({
-  Scan: ScanScreen,
-});
-
-ScanStack.navigationOptions = {
-  tabBarLabel: 'Scanner',
-  tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-camera' : 'md-camera'}
+      name={Platform.OS === 'ios' ? 'ios-bookmark' : 'md-bookmark'}
     />
   ),
 };
 
 export default createBottomTabNavigator({
   HomeStack,
-  SettingsStack,
-  ScanStack,
+  BookmarksStack,
 });
