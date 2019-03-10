@@ -4,14 +4,11 @@ import { createStackNavigator, createBottomTabNavigator } from 'react-navigation
 
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
-// import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import CameraScreen from '../screens/CameraScreen'
 import ScanScreen from '../screens/ScanScreen'
-import VisionScreen from '../screens/VisionScreen'
 
 const HomeStack = createStackNavigator({
-  Home: HomeScreen,
+  Home: ScanScreen,
 });
 
 HomeStack.navigationOptions = {
@@ -28,20 +25,6 @@ HomeStack.navigationOptions = {
   ),
 };
 
-// const LinksStack = createStackNavigator({
-//   Links: LinksScreen,
-// });
-
-// LinksStack.navigationOptions = {
-//   tabBarLabel: 'Links',
-//   tabBarIcon: ({ focused }) => (
-//     <TabBarIcon
-//       focused={focused}
-//       name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'}
-//     />
-//   ),
-// };
-
 const SettingsStack = createStackNavigator({
   Settings: SettingsScreen,
 });
@@ -55,20 +38,6 @@ SettingsStack.navigationOptions = {
     />
   ),
 };
-
-// const CameraStack = createStackNavigator({
-//   Camera: CameraScreen,
-// });
-
-// CameraStack.navigationOptions = {
-//   tabBarLabel: 'Camera',
-//   tabBarIcon: ({ focused }) => (
-//     <TabBarIcon
-//       focused={focused}
-//       name={Platform.OS === 'ios' ? 'ios-camera' : 'md-camera'}
-//     />
-//   ),
-// };
 
 const ScanStack = createStackNavigator({
   Scan: ScanScreen,
@@ -84,24 +53,8 @@ ScanStack.navigationOptions = {
   ),
 };
 
-const VisionStack = createStackNavigator({
-  Scan: VisionScreen,
-});
-
-VisionStack.navigationOptions = {
-  tabBarLabel: 'Vision',
-  tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-camera' : 'md-camera'}
-    />
-  ),
-};
-
 export default createBottomTabNavigator({
   HomeStack,
   SettingsStack,
-  // CameraStack,
   ScanStack,
-  VisionStack
 });

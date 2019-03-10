@@ -35,27 +35,25 @@ export default class ScanScreen extends React.Component {
   render() {
     let { imageUri, status, results } = this.state
 
-    // console.log("RESULTS: ", results)
-
     let imageView = null
     if (imageUri) {
       imageView = (
-        <Image style={{ width: 300, height: 300 }} source={{ uri: imageUri }} />
+        <Image style={{ width: 300, height: 300, flex: 1}} source={{ uri: imageUri }} />
       )
     }
 
     let labelView = null
     if (status) {
       labelView = (
-        <View>
+        <View style={{flex: 1}}>
           <Text style={styles.status}>{status}</Text>
-          {/* <Text style={styles.labelResults}>{results}</Text> */}
           {results && (
             <FlatList
               data={results}
               extraData={this.state}
               keyExtractor={this._keyExtractor}
               renderItem={this._renderItem}
+              contentContainerStyle={{width: 300}}
             />
           )}
         </View>
@@ -64,33 +62,27 @@ export default class ScanScreen extends React.Component {
 
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        {imageView}
-        {labelView}
         <Button
           onPress={this._pickImage}
           title="Pick an image from camera roll"
         />
         <Button onPress={this._takePhoto} title="Take a photo" />
-
-        {/* {this._maybeRenderImage()}
-        {this._maybeRenderUploadingOverlay()} */}
-
-        {/* <StatusBar barStyle="default" /> */}
+        {imageView}
+        {labelView}
+        {this._maybeRenderLoadingOverlay()}
+        <StatusBar barStyle="default" />
       </View>
     )
   }
 
   _renderItem = ({ item }) => {
-    // console.log("Item: ", item)
-    return (
-      <Text style={styles.labelResults}>{item.description}</Text>
-    )
+    return <Text style={styles.labelResults}>{item.description}</Text>
   }
 
-  _keyExtractor = (item) => item.mid
+  _keyExtractor = item => item.mid
 
-  _maybeRenderUploadingOverlay = () => {
-    if (this.state.uploading) {
+  _maybeRenderLoadingOverlay = () => {
+    if (this.state.status === 'Loading...') {
       return (
         <View
           style={[
@@ -106,59 +98,6 @@ export default class ScanScreen extends React.Component {
         </View>
       )
     }
-  }
-
-  _maybeRenderImage = () => {
-    let { image } = this.state
-    if (!image) {
-      return
-    }
-
-    return (
-      <View
-        style={{
-          marginTop: 30,
-          width: 250,
-          borderRadius: 3,
-          elevation: 2
-        }}
-      >
-        <View
-          style={{
-            borderTopRightRadius: 3,
-            borderTopLeftRadius: 3,
-            shadowColor: 'rgba(0,0,0,1)',
-            shadowOpacity: 0.2,
-            shadowOffset: { width: 4, height: 4 },
-            shadowRadius: 5,
-            overflow: 'hidden'
-          }}
-        >
-          <Image source={{ uri: image }} style={{ width: 250, height: 250 }} />
-        </View>
-
-        <Text
-          onPress={this._copyToClipboard}
-          onLongPress={this._share}
-          style={{ paddingVertical: 10, paddingHorizontal: 10 }}
-        >
-          {image}
-        </Text>
-      </View>
-    )
-  }
-
-  _share = () => {
-    Share.share({
-      message: this.state.image,
-      title: 'Check out this photo',
-      url: this.state.image
-    })
-  }
-
-  _copyToClipboard = () => {
-    Clipboard.setString(this.state.image)
-    alert('Copied image URL to clipboard')
   }
 
   _takePhoto = async () => {
@@ -221,13 +160,29 @@ export default class ScanScreen extends React.Component {
           body: JSON.stringify(body)
         }
       )
-      const parsed = await response.json()
-
-      console.log('parsed response: ', parsed)
-
+      const unwantedLabels = [
+        'Dish',
+        'Food',
+        'Cuisine',
+        'Ingredient',
+        'Produce',
+        'Recipe',
+        'Meat',
+        'Vegetable',
+        'Side Dish',
+        'Brunch',
+        'Breakfast',
+        'Lunch',
+        'Dinner',
+        'Dessert'
+      ]
+      const { responses } = await response.json()
+      const filtered = responses[0].labelAnnotations.filter(
+        label => !unwantedLabels.includes(label.description)
+      )
       this.setState({
         status: 'Results:',
-        results: parsed.responses[0].labelAnnotations.reverse()
+        results: filtered
       })
     } catch (e) {
       console.log(e)
