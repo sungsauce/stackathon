@@ -4,9 +4,13 @@ import { createStackNavigator, createBottomTabNavigator } from 'react-navigation
 import TabBarIcon from '../components/TabBarIcon';
 import ScanScreen from '../screens/ScanScreen'
 import BookmarksScreen from '../screens/BookmarksScreen'
+import ResultsScreen from '../screens/ResultsScreen'
+import SingleResultScreen from '../screens/SingleResultScreen'
 
 const HomeStack = createStackNavigator({
   Home: ScanScreen,
+  Results: ResultsScreen,
+  SingleResult: SingleResultScreen
 });
 
 HomeStack.navigationOptions = {

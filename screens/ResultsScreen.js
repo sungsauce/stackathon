@@ -6,24 +6,31 @@ import {
   FlatList,
   TouchableOpacity,
   Platform,
-  StyleSheet
+  StyleSheet,
+  Dimensions,
+  Button
 } from 'react-native'
 import { connect } from 'react-redux'
 import { Icon } from 'expo'
 import { clearImage } from '../store/reducer'
+import { withNavigation } from 'react-navigation'
 
 export function ResultsScreen({
   results,
   imageUri,
   keyExtractor,
   renderItem,
-  startOver
+  startOver,
+  navigation
 }) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       {results && (
         <View style={{ alignSelf: 'flex-start' }}>
-          <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => startOver()}>
+          <TouchableOpacity
+            style={{ flexDirection: 'row' }}
+            onPress={() => startOver()}
+          >
             <Icon.Ionicons
               name={Platform.OS === 'ios' ? 'ios-undo' : 'md-undo'}
               style={styles.startOver}
@@ -33,7 +40,12 @@ export function ResultsScreen({
         </View>
       )}
       <Image
-        style={{ width: 300, height: 300, marginTop: 30, marginBottom: 30 }}
+        style={{
+          width: Dimensions.get('window').width,
+          height: 200,
+          marginTop: 10,
+          marginBottom: 30
+        }}
         source={{ uri: imageUri }}
       />
       {results && (
@@ -52,7 +64,7 @@ export function ResultsScreen({
 const styles = StyleSheet.create({
   startOver: {
     color: 'black',
-    fontSize: 17,
+    fontSize: 15,
     marginTop: 10,
     marginLeft: 10
   }
@@ -66,4 +78,7 @@ const mapDispatchToProps = dispatch => ({
   startOver: () => dispatch(clearImage())
 })
 
-export default connect(null, mapDispatchToProps)(ResultsScreen)
+export default withNavigation(connect(
+  null,
+  mapDispatchToProps
+)(ResultsScreen))

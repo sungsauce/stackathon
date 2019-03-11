@@ -6,9 +6,10 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity
 } from 'react-native'
 import { connect } from 'react-redux'
-import { ImagePicker, Permissions } from 'expo'
+import { ImagePicker, Permissions, Icon } from 'expo'
 import Environment from '../config/environment'
 import ResultsScreen from './ResultsScreen'
 import { updateCurrentImage } from '../store/reducer'
@@ -44,7 +45,10 @@ export class ScanScreen extends React.Component {
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
           >
             <Button onPress={this._takePhoto} title="Take a photo" />
-            <Button onPress={this._pickImage} title="Pick an image from camera roll" />
+            <Button
+              onPress={this._pickImage}
+              title="Pick an image from camera roll"
+            />
           </View>
         )}
         {this._maybeRenderLoadingOverlay()}
@@ -54,7 +58,17 @@ export class ScanScreen extends React.Component {
   }
 
   _renderItem = ({ item }) => (
-    <Text style={styles.labelResults}>{item.description}</Text>
+    <TouchableOpacity
+      style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}
+      onPress={() =>
+        this.props.navigation.navigate('SingleResult', {
+          resultName: item.description
+        })
+      }
+    >
+      <Text style={styles.labelResults}>{item.description}</Text>
+      <Text style={styles.labelResults}>></Text>
+    </TouchableOpacity>
   )
 
   _keyExtractor = item => item.mid
@@ -192,7 +206,10 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  updateCurrentImage: (uri) => dispatch(updateCurrentImage(uri))
+  updateCurrentImage: uri => dispatch(updateCurrentImage(uri))
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(ScanScreen)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ScanScreen)
