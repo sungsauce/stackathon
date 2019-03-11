@@ -42,7 +42,7 @@ export function ResultsScreen({
       <Image
         style={{
           width: Dimensions.get('window').width,
-          height: 200,
+          height: 250,
           marginTop: 10,
           marginBottom: 30
         }}

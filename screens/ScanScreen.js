@@ -44,11 +44,12 @@ export class ScanScreen extends React.Component {
           <View
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Button onPress={this._takePhoto} title="Take a photo" />
-            <Button
-              onPress={this._pickImage}
-              title="Pick an image from camera roll"
-            />
+            <TouchableOpacity style={styles.button} onPress={this._takePhoto}>
+              <Text style={styles.buttonName}>Take a photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={this._pickImage}>
+              <Text style={styles.buttonName}>Pick an image from camera roll</Text>
+            </TouchableOpacity>
           </View>
         )}
         {this._maybeRenderLoadingOverlay()}
@@ -197,6 +198,22 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: 'rgba(255,255,255, 1)',
     lineHeight: 24,
+    textAlign: 'center'
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 100,
+    width: 300,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#d6d7da',
+    margin: 15,
+    backgroundColor: '#d6d7da'
+  },
+  buttonName: {
+    fontSize: 24,
+    fontWeight: 'bold',
     textAlign: 'center'
   }
 })
