@@ -2,8 +2,8 @@
   "devToolsPort": 19002,
   "expoServerPort": 19000,
   "packagerPort": 19001,
-  "packagerPid": 56777,
-  "expoServerNgrokUrl": "https://wu-ux2.anonymous.ocrapp.exp.direct",
-  "packagerNgrokUrl": "https://packager.wu-ux2.anonymous.ocrapp.exp.direct",
-  "ngrokPid": 56796
+  "packagerPid": 5007,
+  "expoServerNgrokUrl": "https://wu-ux2.wsung.ocrapp.exp.direct",
+  "packagerNgrokUrl": "https://packager.wu-ux2.wsung.ocrapp.exp.direct",
+  "ngrokPid": 5026
 }

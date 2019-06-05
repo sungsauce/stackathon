@@ -21,7 +21,7 @@ export function ResultsScreen({
   keyExtractor,
   renderItem,
   startOver,
-  navigation
+  status
 }) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -48,15 +48,21 @@ export function ResultsScreen({
         }}
         source={{ uri: imageUri }}
       />
-      {results && (
-        <FlatList
-          data={results}
-          extraData={results}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          contentContainerStyle={{ width: 300 }}
-        />
-      )}
+      {status !== 'Analyzing...' ? (
+        results && results.length ? (
+          <FlatList
+            data={results}
+            extraData={results}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            contentContainerStyle={{ width: 300 }}
+          />
+        ) : (
+          <Text style={{ fontSize: 25, fontWeight: 'bold' }}>
+            No results found :(
+          </Text>
+        )
+      ) : null}
     </View>
   )
 }
@@ -78,7 +84,9 @@ const mapDispatchToProps = dispatch => ({
   startOver: () => dispatch(clearImage())
 })
 
-export default withNavigation(connect(
-  null,
-  mapDispatchToProps
-)(ResultsScreen))
+export default withNavigation(
+  connect(
+    null,
+    mapDispatchToProps
+  )(ResultsScreen)
+)

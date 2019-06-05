@@ -46,7 +46,6 @@ class BookmarksScreen extends Component {
           extraData={this.props.bookmarks}
           keyExtractor={this.keyExtractor}
           renderItem={this.renderItem}
-          contentContainerStyle={{ width: 300 }}
         />
       </View>
     )
@@ -74,8 +73,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#d6d7da',
-    padding: 10,
-    margin: 15
+    padding: 15,
+    margin: 10
   },
   name: {
     fontSize: 24,

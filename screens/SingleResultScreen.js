@@ -38,6 +38,12 @@ class SingleResultScreen extends Component {
           }}
         />
         <Button
+          title="View more images on Google"
+          onPress={() => {
+            Linking.openURL(`https://www.google.com/search?tbm=isch&q=${title}`)
+          }}
+        />
+        <Button
           title="Save To Bookmarks"
           onPress={() => save({ title: title, image: image, wiki: parsedWiki })}
         />
