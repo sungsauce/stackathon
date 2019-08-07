@@ -11,12 +11,9 @@ export default class CameraScreen extends React.Component {
   }
 
   async snapPhoto () {
-    console.log('button pressed')
     if (this.camera) {
-      console.log('taking photo')
       const options = {quality: 1, base64: true, fixOrientation: true, exif: true}
       const photo = await this.camera.takePictureAsync(options)
-      console.log('photo: ', photo)
       photos.push(photo)
     }
   }

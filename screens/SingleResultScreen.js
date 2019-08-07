@@ -1,14 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Icon } from 'expo'
 import {
-  Image,
   Text,
   View,
-  FlatList,
-  TouchableOpacity,
-  Platform,
-  StyleSheet,
   Linking,
   Button
 } from 'react-native'

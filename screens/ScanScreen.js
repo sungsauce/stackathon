@@ -18,7 +18,6 @@ console.disableYellowBox = true
 
 export class ScanScreen extends React.Component {
   state = {
-    // imageUri: null,
     status: null,
     results: null
   }
@@ -103,7 +102,6 @@ export class ScanScreen extends React.Component {
     if (!cancelled) {
       this.props.updateCurrentImage(uri)
       this.setState({
-        // imageUri: uri,
         status: 'Analyzing...'
       })
       this._handleImagePicked(base64)
@@ -122,7 +120,6 @@ export class ScanScreen extends React.Component {
     if (!cancelled) {
       this.props.updateCurrentImage(uri)
       this.setState({
-        // imageUri: uri,
         status: 'Analyzing...'
       })
       this._handleImagePicked(base64)
