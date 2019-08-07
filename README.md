@@ -1,4 +1,5 @@
-# Whazzat?! An OCR Mobile App (Hackathon Project)
+# Whazzat?! 
+An OCR Mobile App (Hackathon Project)
 
 ![Whatzapp](http://wendysung.com/whazzat.png)
 
